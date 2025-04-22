@@ -32,7 +32,7 @@ def ask_gemini(prompt: str, use_web: bool = False) -> str:
         )
 
         response_stream = client.models.generate_content_stream(
-            model="gemini-1.5-pro",
+            model="gemini-2.0-flash",
             contents=contents,
             config=config
         )
