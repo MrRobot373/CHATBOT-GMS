@@ -16,7 +16,7 @@ with open("metadata.json") as f:
     metadata = json.load(f)
 
 # Configure Gemini
-genai_api_key ="AIzaSyCIhzKAOCeRUL-GX2q0jbJL6-vgxUMPIeM" # Store your key in env
+genai_api_key ="GOOGLE_API_KEY" # Store your key in env
 client = genai.Client(api_key=genai_api_key)
 model_name = "gemini-2.0-flash"
 
