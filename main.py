@@ -74,5 +74,7 @@ def web_search():
     return jsonify({"response": answer})
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    import os
+    port = int(os.environ.get("PORT", 10000))  # Render uses dynamic PORT, default to 10000
+    app.run(host="0.0.0.0", port=port)         # Critical: bind to 0.0.0.0 so it's publicly reachable
+
