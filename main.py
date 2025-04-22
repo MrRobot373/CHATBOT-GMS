@@ -23,26 +23,26 @@ model_name = "gemini-2.0-flash"
 def ask_gemini(prompt: str, use_web: bool = False) -> str:
     try:
         contents = [
-            types.Content(role="user", parts=[types.Part.from_text(prompt)])
+            genai.types.Content(role="user", parts=[genai.types.Part(text=prompt)])
         ]
-        tools = [types.Tool(google_search=types.GoogleSearch())] if use_web else []
-        config = types.GenerateContentConfig(
+        tools = [genai.types.Tool(google_search=genai.types.GoogleSearch())] if use_web else []
+        config = genai.types.GenerateContentConfig(
             tools=tools,
             response_mime_type="text/plain"
         )
 
         response_stream = client.models.generate_content_stream(
-            model="gemini-2.0-flash",
+            model="gemini-1.5-pro",
             contents=contents,
             config=config
         )
         result = "".join([chunk.text for chunk in response_stream if chunk.text])
-        print("✅ Gemini response:", result)
         return result
 
     except Exception as e:
         print("❌ Gemini ERROR:", str(e))
         return f"⚠️ Gemini Error: {str(e)}"
+
 
 @app.route("/")
 def home():
