@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Maintenance Chatbot</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f7f8fa;
+      height: 100vh;
+    }
+
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      width: 100%;
+      height: 100vh;
+      background: #ffffff;
+    }
+
+    .chat-header {
+      padding: 1rem;
+      background-color: #2563eb;
+      color: white;
+      font-weight: bold;
+      text-align: center;
+      font-size: 1.2rem;
+    }
+
+    .chat-messages {
+      flex: 1;
+      padding: 1rem;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 0.8rem;
+    }
+
+    .message {
+      max-width: 80%;
+      padding: 0.7rem 1rem;
+      border-radius: 18px;
+      line-height: 1.4;
+      font-size: 0.95rem;
+      word-wrap: break-word;
+    }
+
+    .user-message {
+      align-self: flex-end;
+      background-color: #2563eb;
+      color: white;
+      border-bottom-right-radius: 4px;
+    }
+
+    .bot-message {
+      align-self: flex-start;
+      background-color: #f1f5f9;
+      border-bottom-left-radius: 4px;
+    }
+
+    .chat-input {
+      display: flex;
+      padding: 0.8rem;
+      border-top: 1px solid #e2e8f0;
+      background-color: #f9fafb;
+    }
+
+    .chat-input input {
+      flex: 1;
+      padding: 0.5rem 0.8rem;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    .chat-input button {
+      margin-left: 0.5rem;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background-color: #2563eb;
+      color: white;
+    }
+
+    .chat-input button.secondary {
+      background-color: #e2e8f0;
+      color: #1e293b;
+    }
+
+    .bot-message h1, .bot-message h2, .bot-message h3 {
+      margin: 0.3em 0;
+    }
+
+    .bot-message ul {
+      padding-left: 1.2em;
+      margin: 0.5em 0;
+    }
+
+    .bot-message strong {
+      font-weight: bold;
+    }
+
+    #loader {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 1.2rem;
+      color: #2563eb;
+      font-weight: bold;
+      z-index: 999;
+    }
+  </style>
+</head>
+<body>
+
+<div class="chat-container">
+  <div class="chat-header">GMS Maintenance Chatbot</div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-input">
+    <input type="text" id="queryInput" placeholder="Ask me anything about maintenance..." />
+    <button onclick="handleSearch()">Search</button>
+    <button class="secondary" onclick="handleWebSearch()">Web</button>
+  </div>
+</div>
+
+<div id="loader">⏳ Thinking...</div>
+
+<script>
+  function appendMessage(text, type) {
+    const chatMessages = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${type}-message`;
+    messageDiv.innerHTML = type === 'bot' ? marked.parse(text) : text;
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function toggleLoader(show) {
+    document.getElementById('loader').style.display = show ? 'block' : 'none';
+  }
+
+  async function handleSearch() {
+    const input = document.getElementById('queryInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    appendMessage(text, 'user');
+    input.value = '';
+    toggleLoader(true);
+
+    try {
+      const res = await fetch('/search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: text })
+      });
+      const data = await res.json();
+      appendMessage(data.response, 'bot');
+    } catch (error) {
+      appendMessage("❌ Error fetching local answer.", 'bot');
+    } finally {
+      toggleLoader(false);
+    }
+  }
+
+  async function handleWebSearch() {
+    const input = document.getElementById('queryInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    appendMessage(text, 'user');
+    input.value = '';
+    toggleLoader(true);
+
+    try {
+      const res = await fetch('/web-search', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: text })
+      });
+      const data = await res.json();
+      appendMessage(data.response, 'bot');
+    } catch (error) {
+      appendMessage("❌ Error fetching web answer.", 'bot');
+    } finally {
+      toggleLoader(false);
+    }
+  }
+</script>
+
+</body>
+</html>
