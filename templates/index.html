@@ -87,52 +87,37 @@
       color: white;
     }
 
-    .chat-input button.secondary {
-      background-color: #e2e8f0;
-      color: #1e293b;
+    /* Skeleton Loader */
+    .skeleton-loader {
+      width: 80%;
+      height: 60px;
+      background: linear-gradient(-90deg, #e0e0e0 0%, #f7f7f7 50%, #e0e0e0 100%);
+      background-size: 400% 400%;
+      animation: shimmer 1.5s ease-in-out infinite;
+      border-radius: 18px;
+      align-self: flex-start;
     }
 
-    .bot-message h1, .bot-message h2, .bot-message h3 {
-      margin: 0.3em 0;
-    }
-
-    .bot-message ul {
-      padding-left: 1.2em;
-      margin: 0.5em 0;
-    }
-
-    .bot-message strong {
-      font-weight: bold;
-    }
-
-    #loader {
-      display: none;
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 1.2rem;
-      color: #2563eb;
-      font-weight: bold;
-      z-index: 999;
+    @keyframes shimmer {
+      0% { background-position: 100% 0 }
+      100% { background-position: -100% 0 }
     }
   </style>
 </head>
 <body>
 
 <div class="chat-container">
-  <div class="chat-header">GMS Maintenance Chatbot</div>
+  <div class="chat-header">GMS Maintenance Demo Chatbot</div>
   <div class="chat-messages" id="chatMessages"></div>
   <div class="chat-input">
-    <input type="text" id="queryInput" placeholder="Ask me anything about maintenance..." />
+    <input type="text" id="queryInput" placeholder="Ask me anything about maintenance..." onkeypress="handleKeyPress(event)" />
     <button onclick="handleSearch()">Search</button>
-    <button class="secondary" onclick="handleWebSearch()">Web</button>
   </div>
 </div>
 
-<div id="loader">⏳ Thinking...</div>
-
 <script>
+  let typingInterval;
+
   function appendMessage(text, type) {
     const chatMessages = document.getElementById('chatMessages');
     const messageDiv = document.createElement('div');
@@ -142,8 +127,26 @@
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
 
-  function toggleLoader(show) {
-    document.getElementById('loader').style.display = show ? 'block' : 'none';
+  function showTypingLoader() {
+    const chatMessages = document.getElementById('chatMessages');
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'message bot-message';
+    typingDiv.id = 'typingLoader';
+    typingDiv.textContent = 'Thinking';
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    let dots = '';
+    typingInterval = setInterval(() => {
+      dots = dots.length < 3 ? dots + '.' : '';
+      typingDiv.textContent = 'Thinking' + dots;
+    }, 500);
+  }
+
+  function removeTypingLoader() {
+    clearInterval(typingInterval);
+    const typingDiv = document.getElementById('typingLoader');
+    if (typingDiv) typingDiv.remove();
   }
 
   async function handleSearch() {
@@ -153,7 +156,7 @@
 
     appendMessage(text, 'user');
     input.value = '';
-    toggleLoader(true);
+    showTypingLoader();
 
     try {
       const res = await fetch('/search', {
@@ -162,38 +165,27 @@
         body: JSON.stringify({ query: text })
       });
       const data = await res.json();
-      appendMessage(data.response, 'bot');
+
+      setTimeout(() => {
+        removeTypingLoader();
+        appendMessage(data.response, 'bot');
+      }, 300);  // Small delay for smoother transition
+
     } catch (error) {
-      appendMessage("❌ Error fetching local answer.", 'bot');
-    } finally {
-      toggleLoader(false);
+      setTimeout(() => {
+        removeTypingLoader();
+        appendMessage("❌ Error fetching answer.", 'bot');
+      }, 300);
     }
   }
 
-  async function handleWebSearch() {
-    const input = document.getElementById('queryInput');
-    const text = input.value.trim();
-    if (!text) return;
-
-    appendMessage(text, 'user');
-    input.value = '';
-    toggleLoader(true);
-
-    try {
-      const res = await fetch('/web-search', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: text })
-      });
-      const data = await res.json();
-      appendMessage(data.response, 'bot');
-    } catch (error) {
-      appendMessage("❌ Error fetching web answer.", 'bot');
-    } finally {
-      toggleLoader(false);
+  function handleKeyPress(e) {
+    if (e.key === "Enter") {
+      handleSearch();
     }
   }
 </script>
+
 
 </body>
 </html>
