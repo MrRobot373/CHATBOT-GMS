@@ -3,21 +3,29 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Maintenance Chatbot</title>
+  <title>Maintenance Chatbot - SY35U Mini Excavator</title>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
   <style>
     body {
       margin: 0;
       font-family: 'Segoe UI', sans-serif;
       background-color: #f7f8fa;
       height: 100vh;
+      overflow: hidden;
+    }
+
+    .container {
+      display: flex;
+      height: 100vh;
+      width: 100%;
+      flex-direction: row;
     }
 
     .chat-container {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      width: 100%;
-      height: 100vh;
       background: #ffffff;
     }
 
@@ -87,32 +95,56 @@
       color: white;
     }
 
-    /* Skeleton Loader */
-    .skeleton-loader {
-      width: 80%;
-      height: 60px;
-      background: linear-gradient(-90deg, #e0e0e0 0%, #f7f7f7 50%, #e0e0e0 100%);
-      background-size: 400% 400%;
-      animation: shimmer 1.5s ease-in-out infinite;
-      border-radius: 18px;
-      align-self: flex-start;
+    .reset-button {
+      background-color: #f87171;
+      margin-left: 0.5rem;
     }
 
-    @keyframes shimmer {
-      0% { background-position: 100% 0 }
-      100% { background-position: -100% 0 }
+    .image-section {
+      flex: 1;
+      background-color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+
+    .image-section img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+    }
+
+    /* Responsive Mobile */
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+      .chat-container {
+        height: 65%;
+      }
+      .image-section {
+        height: 35%;
+      }
     }
   </style>
 </head>
+
 <body>
 
-<div class="chat-container">
-  <div class="chat-header">GMS Maintenance Demo Chatbot- SY35U Mini Excavators</div>
-  <div class="chat-messages" id="chatMessages"></div>
-  <div class="chat-input">
-    <input type="text" id="queryInput" placeholder="Ask me anything about maintenance..." onkeypress="handleKeyPress(event)" />
-    <button onclick="handleSearch()">Search</button>
-    <button onclick="handleReset()" style="background-color: #f87171; color: white;">Reset Chat</button>
+<div class="container">
+  <div class="chat-container">
+    <div class="chat-header">GMS Maintenance Chatbot - SY35U</div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input">
+      <input type="text" id="queryInput" placeholder="Ask me anything about maintenance..." onkeypress="handleKeyPress(event)" />
+      <button onclick="handleSearch()">Search</button>
+      <button class="reset-button" onclick="resetChat()">New Chat</button>
+    </div>
+  </div>
+
+  <div class="image-section">
+    <img src="/static/crane.png" alt="SY35U Mini Excavator" />
   </div>
 </div>
 
@@ -127,18 +159,6 @@
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
-
-    async function handleReset() {
-    try {
-      await fetch('/reset', { method: 'POST' });
-      document.getElementById('chatMessages').innerHTML = '';
-      document.getElementById('queryInput').value = '';
-      alert("Chat reset successfully!");
-    } catch (error) {
-      alert("❌ Error resetting chat.");
-    }
-  }
-
 
   function showTypingLoader() {
     const chatMessages = document.getElementById('chatMessages');
@@ -182,8 +202,7 @@
       setTimeout(() => {
         removeTypingLoader();
         appendMessage(data.response, 'bot');
-      }, 300);  // Small delay for smoother transition
-
+      }, 300);
     } catch (error) {
       setTimeout(() => {
         removeTypingLoader();
@@ -192,13 +211,17 @@
     }
   }
 
+  function resetChat() {
+    document.getElementById('chatMessages').innerHTML = '';
+    location.reload();
+  }
+
   function handleKeyPress(e) {
     if (e.key === "Enter") {
       handleSearch();
     }
   }
 </script>
-
 
 </body>
 </html>
