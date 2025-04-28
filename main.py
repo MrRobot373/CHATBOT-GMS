@@ -48,6 +48,11 @@ def home():
     session.clear()
     return render_template("index.html")
 
+@app.route("/reset", methods=["POST"])
+def reset():
+    session.clear()
+    return jsonify({"message": "Session cleared"})
+
 @app.route("/search", methods=["POST"])
 def search():
     data = request.get_json()
