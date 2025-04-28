@@ -112,6 +112,7 @@
   <div class="chat-input">
     <input type="text" id="queryInput" placeholder="Ask me anything about maintenance..." onkeypress="handleKeyPress(event)" />
     <button onclick="handleSearch()">Search</button>
+    <button onclick="handleReset()" style="background-color: #f87171; color: white;">Reset Chat</button>
   </div>
 </div>
 
@@ -126,6 +127,18 @@
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
   }
+
+    async function handleReset() {
+    try {
+      await fetch('/reset', { method: 'POST' });
+      document.getElementById('chatMessages').innerHTML = '';
+      document.getElementById('queryInput').value = '';
+      alert("Chat reset successfully!");
+    } catch (error) {
+      alert("❌ Error resetting chat.");
+    }
+  }
+
 
   function showTypingLoader() {
     const chatMessages = document.getElementById('chatMessages');
