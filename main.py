@@ -73,21 +73,26 @@ def search():
 
     # Now prepare the final diagnostic prompt
     if "problem_identified" not in session:
-        prompt = (
-            "You are a professional maintenance assistant of SY35U EXCAVATER . "
-            "Use the internal knowledge and web information to understand the problem quickly.\n\n"
-            "If necessary, ask **only ONE** very short question to clarify. "
-            "Otherwise, proceed to provide a **complete, detailed maintenance solution** without delay.\n\n"
-            "Provide in your final answer:\n"
-            "- Identified Issue\n"
-            "- Does expert require if yes then which expert require\n "
-            "- Required Tools\n"
-            "- Precautions\n"
-            "- Step-by-Step Actions\n\n"
-            f"📚 Internal Knowledge:\n{context}\n\n"
-            f"🌐 Web Search Info:\n{web_search_answer}\n\n"
-            "🧑 Conversation History:\n" + "\n".join([f"{turn['role'].capitalize()}: {turn['content']}" for turn in conversation])
-        )
+            prompt = (
+        "You are a professional maintenance assistant of SY35U EXCAVATOR.\n\n"
+        "Use the internal knowledge and web information to understand the problem quickly.\n\n"
+        "If necessary, ask **only ONE** very short question to clarify. "
+        "Otherwise, proceed to provide a **complete, detailed maintenance solution** without delay.\n\n"
+        "When giving the final answer, use **Markdown format**. Bold all section headings.\n\n"
+        "Provide the following sections, and **bold** each title:\n"
+        "- **Identified Issue**\n"
+        "- **Expert Require**\n"
+        "- **Required Tools**\n"
+        "- **Precautions**\n"
+        "- **Step-by-Step Actions**\n\n"
+        "📚 Internal Knowledge:\n"
+        f"{context}\n\n"
+        "🌐 Web Search Info:\n"
+        f"{web_search_answer}\n\n"
+        "🧑 Conversation History:\n"
+        + "\n".join([f"{turn['role'].capitalize()}: {turn['content']}" for turn in conversation])
+    )
+
     else:
         prompt = (
             "Based on the conversation, internal data, and web info, provide a very detailed maintenance solution.\n\n"
